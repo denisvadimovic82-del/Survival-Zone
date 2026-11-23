@@ -226,9 +226,9 @@ function doAutoAim(){
 }
 
 bindBtn('bJump', ()=>{ if(state.onGround){ state.vy = 6.0*(1+artifactTotals().jump); state.onGround = false; } });
-bindBtn('bAtk', attack);
-bindBtn('bReload', reload);
-bindBtn('bInteract', interact);
+bindBtn('bAtk', ()=>attack());
+bindBtn('bReload', ()=>reload());
+bindBtn('bInteract', ()=>interact());
 bindBtn('bAim', doAutoAim);
 bindBtn('bInv', ()=>{ invPanel.classList.toggle('open'); if(invPanel.classList.contains('open')) refreshInv(); });
 document.getElementById('invSort').addEventListener('click',sortInventory);
