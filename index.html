@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>ЗОНА: Территория отчуждения </title>
+<link rel="stylesheet" href="css/style.css">
+
+<script src="js/00-early-init.js"></script>
+</head>
+<body>
+<div id="ui">
+  <button id="fullscreenBtn" type="button" aria-label="Полноэкранный режим" title="Полный экран">⛶</button>
+  <button id="scanArtifactBtn" type="button" aria-label="Сканировать ближайшую аномалию">📡 СКАНИРОВАТЬ</button>
+  <div id="top" aria-hidden="true"></div>
+
+  <div id="lookZone"></div>
+  <div id="joy"><div id="knob"></div></div>
+
+  <div id="actions">
+    <button class="abtn" id="bInv">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z M8 6v3 M16 6v3" stroke="#fff" stroke-width="2" fill="none"/><circle cx="12" cy="13" r="2" fill="#fff"/></svg>
+    </button>
+    <button class="abtn" id="bAim">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="1.5" fill="#fff"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="abtn" id="bReload">
+      <svg viewBox="0 0 24 24"><path d="M12 6V3L8 7l4 4V8a4 4 0 1 1-4 4H6a6 6 0 1 0 6-6z"/></svg>
+    </button>
+    <button class="abtn" id="bInteract">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.9l6.2 12.4H5.8L12 6.9z"/></svg>
+    </button>
+    <button class="abtn" id="bJump">
+      <svg viewBox="0 0 24 24"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+    </button>
+
+    <button class="abtn" id="bAtk">
+      <svg viewBox="0 0 24 24"><path d="M6.9 2.4l4.1 4.1-1.4 1.4-4.1-4.1zM17 2l5 5-1.4 1.4-5-5zM2 17l5-5 1.4 1.4-5 5zM14.1 10.4l-6.3 6.3c-.8.8-.8 2 0 2.8.8.8 2 .8 2.8 0l6.3-6.3-2.8-2.8z"/></svg>
+    </button>
+  </div>
+
+  <div id="survivalHUD" aria-label="Показатели ПДА">
+    <div class="pdaTitle"><span>◈ ПДА / СОСТОЯНИЕ</span><span class="pdaOnline">● ONLINE</span></div>
+    <div class="survRow mainStat"><span>♥ ЗДОРОВЬЕ</span><div class="survBar"><div id="hp" class="pdaFillWrap"><div class="fill"></div></div></div><b class="statValue" id="hpLabel">100</b></div>
+    <div class="survRow mainStat"><span>☢ РАДИАЦИЯ</span><div class="survBar"><div id="rad" class="pdaFillWrap"><div class="fill" style="width:0%"></div></div></div><b class="statValue" id="radLabel">0</b></div>
+    <div class="survRow mainStat"><span>⚡ СИЛЫ</span><div class="survBar"><div id="staminaFill" class="survFill"></div></div><b id="staminaPct">100</b></div>
+    <div class="pdaDivider"></div>
+    <div class="survRow"><span>🍖 ГОЛОД</span><div class="survBar"><div id="hungerFill" class="survFill"></div></div><b id="hungerPct">100</b></div>
+    <div class="survRow"><span>💧 ЖАЖДА</span><div class="survBar"><div id="thirstFill" class="survFill"></div></div><b id="thirstPct">100</b></div>
+    <div class="survRow"><span>☣ ТОКСИНЫ</span><div class="survBar"><div id="toxFill" class="survFill"></div></div><b id="toxPct">0</b></div>
+    <div class="survRow"><span>✦ ОПЫТ</span><div class="survBar xpBar"><div id="xp" class="pdaFillWrap"><div class="fill"></div></div></div><b class="statValue" id="xpLabel">0</b></div>
+    <div id="survivalWarning"></div></div>
+  <div id="levelBadge" aria-label="Уровень персонажа"><span class="levelCaption">СТАЛКЕР</span><span id="levelNumber">1</span><span class="levelTag">УРОВЕНЬ</span></div>
+  <div id="weaponSlot"></div>
+  <div id="log"></div>
+  <div id="safeIndicator">🛡️ БЕЗОПАСНАЯ ЗОНА</div>
+  <div id="gameToastStack" aria-live="polite" aria-atomic="false"></div>
+  <div id="zoneResultToastStack" aria-live="polite" aria-atomic="false"></div>
+  <div id="emissionBanner" role="status" aria-live="polite"></div>
+  <div id="emissionOverlay"></div>
+  <div id="psiOverlay"></div>
+  <div id="psiBanner">🧠 ПСИ-НАГРУЗКА <span id="psiPct">0%</span><div class="psiBar"><div class="psiFill" id="psiFill"></div></div></div>
+
+  <div id="crosshair">
+    <svg viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="2" fill="#fff" opacity=".9"/>
+      <path d="M14 4v5M14 19v5M4 14h5M19 14h5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
+    </svg>
+  </div>
+  <div id="aimTarget"></div>
+
+  <div id="hurtFlash"></div>
+  <div id="radFlash"></div>
+</div>
+
+<div id="invPanel">
+  <div id="invBox">
+    <div id="invHeader"><span id="invTitle">ИНВЕНТАРЬ</span><button id="invSort" type="button" aria-label="Сортировать инвентарь" title="Сортировать предметы"><span class="sortGlyph">⇅</span> СОРТ.</button><button id="invClose">✕</button></div>
+    <div id="invTabs"><button class="invTab active" id="tabInventory">Инвентарь</button><button class="invTab" id="tabEquipment">Снаряжение</button><button class="invTab" id="tabStats">Характеристики</button></div>
+    <div id="inventoryContent"><div id="invScroll"><div id="invGrid"></div></div><div id="invDetail"></div></div>
+    <div id="equipmentContent" style="display:none"><div class="gearSectionTitle">ПРИБОРЫ</div><div id="deviceRack" aria-label="Слот прибора"></div><div class="gearSectionTitle">БРОНЯ</div><div id="armorRack" aria-label="Слоты брони: шлем, костюм, рюкзак"></div><div class="gearSectionTitle">АРТЕФАКТЫ</div><div id="artifactRack" aria-label="5 слотов артефактов"></div><div class="gearSectionTitle">ОРУЖИЕ</div><div id="weaponRack"></div></div>
+    <div id="characterStats" style="display:none"></div>
+  </div>
+</div>
+
+<div id="tradePanel">
+  <div id="tradeBox">
+    <div id="tradeTitle">🧔 БОРОДАЧ</div>
+    <div id="tradeMoney">Деньги: 0 ₽</div>
+    <div id="tradeModes"><button id="tradeBuyMode" class="active">ПОКУПКА</button><button id="tradeSellMode">ПРОДАЖА</button></div>
+    <div id="tradeList"></div><div id="tradeSelectedInfo">Выберите предмет</div>
+    <div id="tradeActions"><button id="tradeBuy" disabled>КУПИТЬ</button><button id="tradeSell" disabled>ПРОДАТЬ</button></div>
+    <button id="tradeClose">ЗАКРЫТЬ</button>
+  </div>
+</div>
+
+<div id="artifactGame" aria-modal="true" role="dialog">
+  <div id="artifactGameBox">
+    <div id="artifactGameTitle">📡 ДЕТЕКТОР АРТЕФАКТОВ</div>
+    <div id="artifactGameHint">Проведи пальцем в направлении стрелки</div>
+    <div id="artifactArrow">↑</div>
+    <div id="artifactProgress">Шаг 1 из 5</div>
+    <div id="artifactGameStatus">Синхронизация прибора…</div>
+    <button id="artifactGameCancel" type="button">ОТМЕНА</button>
+  </div>
+</div>
+
+<div id="mainMenu" role="dialog" aria-modal="true" aria-label="Главное меню">
+  <div id="menuPanel">
+    <div id="menuEyebrow">ТЕРРИТОРИЯ ОТЧУЖДЕНИЯ</div>
+    <div id="menuTitle">ЗОНА</div>
+    <div id="menuVersion">МОБИЛЬНЫЙ СТАЛКЕР · v13.1</div>
+    <div id="menuDivider"></div>
+    <button class="menuBtn primary" id="menuContinue">▶ ПРОДОЛЖИТЬ</button>
+    <button class="menuBtn" id="menuNewGame">НОВАЯ ИГРА</button>
+    <button class="menuBtn" id="menuLoad">ЗАГРУЗИТЬ СОХРАНЕНИЕ</button>
+    <button class="menuBtn" id="menuSave">СОХРАНИТЬ В ФАЙЛ</button>
+    <input id="menuFileInput" type="file" accept=".json,application/json">
+    <div id="menuHint">Проверка связи с ПДА…</div>
+    <div id="menuFooter">ОСТОРОЖНО: ЗОНА НЕ ПРОЩАЕТ ОШИБОК</div>
+  </div>
+</div>
+
+<div id="loadingScreen" aria-live="polite">
+  <div id="loadingTitle">ЗОНА</div>
+  <div id="loadingMessage">ПОДГОТОВКА К ВЫХОДУ...</div>
+  <div id="loadingTrack"><div id="loadingProgress"></div></div>
+</div>
+
+<div id="errBox"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js" onerror="this.onerror=null;document.write('<script src=\"https://unpkg.com/three@0.160.0/build/three.min.js\"><\/script>')"></script>
+<script src="js/01-core-setup.js"></script>
+<script src="js/02-scene-and-terrain.js"></script>
+<script src="js/03-items-and-ui.js"></script>
+<script src="js/04-player-and-weapons.js"></script>
+<script src="js/05-world-and-radar.js"></script>
+<script src="js/06-enemies-and-state.js"></script>
+<script src="js/07-menu-and-saves.js"></script>
+<script src="js/08-game-mechanics.js"></script>
+<script src="js/09-animation-and-runtime.js"></script>
+
+<div id="orientationLock" role="status" aria-live="polite">
+  <div class="orientationIcon">↻</div>
+  <div>ПОВЕРНИТЕ УСТРОЙСТВО ВЕРТИКАЛЬНО</div>
+  <small>Игра доступна только в портретном режиме.</small>
+</div>
+</body>
+</html>
